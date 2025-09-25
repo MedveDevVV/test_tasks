@@ -4,20 +4,20 @@ public class PasswordGenerator {
     private PasswordLength pwdLength;
     private final String symbolSet;
 
-    enum PasswordLength {
-        _8(8),
-        _9(9),
-        _10(10),
-        _11(11),
-        _12(12);
-        private final int length;
-        PasswordLength(int length) {
-            this.length = length;
-        }
+    private boolean isValidPassword(StringBuilder password) {
+        boolean hasNumbers = false;
+        boolean hasUpperCase = false;
+        boolean hasLowerCase = false;
+        boolean hasSpecialCharacters = false;
 
-        public int getLength() {
-            return length;
+        for (int i = 0; i < password.length(); ++i) {
+            char curChar = password.charAt(i);
+            if (!hasNumbers && curChar > 47 && curChar < 58) hasNumbers = true;
+            else if (!hasUpperCase && curChar > 64 && curChar < 91) hasUpperCase = true;
+            else if (!hasLowerCase && curChar > 96 && curChar < 123) hasLowerCase = true;
+            else hasSpecialCharacters = true;
         }
+        return hasNumbers && hasLowerCase && hasUpperCase && hasSpecialCharacters;
     }
 
     public PasswordGenerator() {
@@ -39,13 +39,38 @@ public class PasswordGenerator {
         return pwdLength.getLength();
     }
 
-    public String getPassword() {
+    public StringBuilder generateRandomPassword(){
         SecureRandom secureRandom = new SecureRandom();
         StringBuilder password = new StringBuilder(pwdLength.getLength());
         for (int i = 0; i < pwdLength.getLength(); ++i) {
             password.append(symbolSet.charAt(secureRandom.nextInt(symbolSet.length())));
         }
+        return password;
+    }
+
+    public String getPassword() {
+        StringBuilder password;
+        do {
+            password = generateRandomPassword();
+        }while (!isValidPassword(password));
         return password.toString();
+    }
+
+    enum PasswordLength {
+        _8(8),
+        _9(9),
+        _10(10),
+        _11(11),
+        _12(12);
+        private final int length;
+
+        PasswordLength(int length) {
+            this.length = length;
+        }
+
+        public int getLength() {
+            return length;
+        }
     }
 
 }
